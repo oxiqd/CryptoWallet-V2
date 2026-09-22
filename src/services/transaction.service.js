@@ -1,10 +1,14 @@
-import {createTransaction, getAllTransactions} from "../repositories/transaction.repository.js";
+import {createTransaction, getAllTransactions, getTransactionById} from "../repositories/transaction.repository.js";
 import {depositWalletData, getBalance, withdrawalWalletData} from "../repositories/wallet.repository.js";
 
 export const transactionGetService = () => {
-  const transactions = getAllTransactions()
-  return transactions;
+  return getAllTransactions();
 }
+
+export const transactionGetByIdService = (id) => {
+  return getTransactionById(id);
+}
+
 
 
 export const transactionCreateService = (data) => {
@@ -30,14 +34,12 @@ export const transactionCreateService = (data) => {
     }
   }
 
-  const newTransaction = createTransaction({
+  return createTransaction({
     walletId: 1,
     type: data.type,
     asset: data.asset,
     amount: data.amount,
     createdAt: new Date().toISOString(),
-  })
-
-  return newTransaction;
+  });
 
 }

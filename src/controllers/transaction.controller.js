@@ -1,4 +1,21 @@
-import {transactionCreateService, transactionGetService} from "../services/transaction.service.js";
+import {
+  transactionCreateService,
+  transactionGetByIdService,
+  transactionGetService
+} from "../services/transaction.service.js";
+
+export const getTransactionById = (request, response,id) => {
+  response.statusCode = 200;
+  response.setHeader("Content-Type", "application/json")
+
+  const transaction = transactionGetByIdService(id)
+
+  response.end(
+    JSON.stringify({
+      data: transaction
+    })
+  )
+};
 
 export const getTransaction = (request, response) => {
   response.statusCode = 200;
