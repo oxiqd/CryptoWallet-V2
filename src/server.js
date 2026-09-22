@@ -5,8 +5,6 @@ const {walletRoutes} = require("./routes/wallet.routes.js");
 const {transactionRoutes} = require("./routes/transaction.routes.js");
 
 const server = http.createServer((request, response) => {
-  console.log(request.method, request.url);
-
   if (heathRoutes(request, response)) return;
   if (walletRoutes(request, response)) return;
   if (transactionRoutes(request, response)) return;

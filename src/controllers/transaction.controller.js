@@ -14,8 +14,9 @@ export const getTransaction = (request, response) => {
 };
 
 export const createTransaction = (request, response) => {
-  // тут показана работа stream, что контроллер не получает данные тела запроса сразу головыми, это поток байтов
-  // поэтому мы сначала собираем их, а в конце реквеста орудуем уже целостными данными которые мы собрали
+// Request body is a stream: data arrives in chunks,
+// so we collect it first and process the complete body on `end`.
+
   let body = ''
 
   request.on('data',(chunk) => {
