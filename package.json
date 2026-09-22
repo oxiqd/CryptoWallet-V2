@@ -1,12 +1,13 @@
 {
-  "name": "cryptowallet",
+  "name": "crypto-wallet",
+  "description": "Pet project 21 Sep 2026",
+  "author": "Zhdanovich Oksana Vladimirovna",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": "true",
+  "main": "src/server.js",
+  "license": "MIT",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": ""
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js"
+  }
 }
