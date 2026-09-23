@@ -3,12 +3,21 @@ import {
   transactionGetByIdService,
   transactionGetService
 } from "../services/transaction.service.js";
+import {handleError} from "../errors/http-error-handler.js";
+import {AppError} from "../errors/app-error.js";
+import {ERROR_CODES} from "../errors/error-constants.js";
 
 export const getTransactionById = (request, response,id) => {
   response.statusCode = 200;
   response.setHeader("Content-Type", "application/json")
 
-  const transaction = transactionGetByIdService(id)
+  let transaction;
+
+  try {
+   transaction = transactionGetByIdService(id)
+  }catch (error){
+    return handleError(error,response)
+  }
 
   response.end(
     JSON.stringify({
@@ -45,31 +54,18 @@ export const createTransaction = (request, response) => {
 
     try{
       data = JSON.parse(body);
-    }catch (error) {
-      response.statusCode = 400;
-      response.setHeader("Content-Type", "application/json")
-
-      response.end(
-        JSON.stringify({
-          error:"Parse error"
-        })
-      )
-    }
+    }catch{
+      return handleError(
+        new AppError(ERROR_CODES.INVALID_JSON),
+        response
+      );    }
 
     let newTransaction;
 
     try{
       newTransaction = transactionCreateService(data)
     }catch (error) {
-        response.statusCode = 400;
-        response.setHeader("Content-Type", "application/json")
-
-        response.end(
-          JSON.stringify({
-           error: error.message,
-          })
-        )
-        return;
+        return handleError(error,response)
     }
 
     response.statusCode = 200;
