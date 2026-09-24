@@ -1,22 +1,56 @@
-import { transactions } from '../data/transactions.js';
+import { pool } from "../db/pool.js";
 
-export const getAllTransactions = () => {
-  return transactions;
+export const getTransactionsByWalletId = async (walletId) => {
+  const result = await pool.query(`
+      SELECT
+          id,
+          wallet_id,
+          type,
+          asset,
+          amount,
+          created_at
+      FROM transactions
+      WHERE wallet_id = $1
+      ORDER BY id;
+  `, [walletId]);
+
+  return result.rows;
 };
 
-export const getTransactionById = (transactionId) => {
-  return transactions.find(transaction => transaction.id === transactionId)
+export const getTransactionById = async (walletId, transactionId) => {
+  const result = await pool.query(`
+      SELECT
+          id,
+          wallet_id,
+          type,
+          asset,
+          amount,
+          created_at
+      FROM transactions
+      WHERE wallet_id = $1
+        AND id = $2;
+  `, [walletId, transactionId]);
+
+  return result.rows[0];
 };
 
+export const createTransaction = async (data) => {
+  const result = await pool.query(`
+    INSERT INTO transactions (wallet_id, type, asset, amount)
+    VALUES ($1, $2, $3, $4)
+    RETURNING
+      id,
+      wallet_id,
+      type,
+      asset,
+      amount,
+      created_at;
+  `, [
+    data.walletId,
+    data.type,
+    data.asset,
+    data.amount,
+  ]);
 
-export const createTransaction = (data) => {
-
-  const transaction = {
-    id: transactions.length + 1,
-    ...data
-  }
-
-  transactions.push(transaction);
-
-  return transaction;
+  return result.rows[0];
 };

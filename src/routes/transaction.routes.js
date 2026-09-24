@@ -4,7 +4,7 @@ import {ROUTER_RESPONSE} from "../constants.js";
 const URL_LENGTH_EXPECTED = 3
 const URL_SPLIT_SYMBOL = '/'
 
-export const transactionRoutes = (request, response) => {
+export const transactionRoutes = async (request, response) => {
 
   const pathParameters = request.url.split(URL_SPLIT_SYMBOL);
   const resource = pathParameters[1];
@@ -15,17 +15,17 @@ export const transactionRoutes = (request, response) => {
     resource === 'transactions' &&
     parameter && pathParameters.length === URL_LENGTH_EXPECTED
   ) {
-    getTransactionById(request, response, Number(parameter));
+     await getTransactionById(request, response, Number(parameter));
     return ROUTER_RESPONSE.HANDLED
   }
 
   if (request.method === 'GET' && request.url === '/transactions') {
-    getTransaction(request, response);
+    await getTransaction(request, response);
     return ROUTER_RESPONSE.HANDLED
   }
 
   if (request.method === 'POST' && request.url === '/transactions') {
-    createTransaction(request, response);
+     await createTransaction(request, response);
     return ROUTER_RESPONSE.HANDLED
   }
 

@@ -1,8 +1,8 @@
-const http = require('node:http');
-const {router} = require("./routes/router.js");
+import * as http from "node:http";
+import {router} from "./routes/router.js";
 
-const server = http.createServer((request, response) => {
-  router(request, response);
+const server = http.createServer(async (request, response) => {
+  await router(request, response);
 });
 
 server.listen(3000, () => {

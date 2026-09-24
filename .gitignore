@@ -10,3 +10,7 @@
 /httpRequests/
 
 .idea
+
+/node_modules
+
+.env

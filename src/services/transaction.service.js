@@ -1,50 +1,73 @@
-import {createTransaction, getAllTransactions, getTransactionById} from "../repositories/transaction.repository.js";
-import {depositWalletData, getBalance, withdrawalWalletData} from "../repositories/wallet.repository.js";
-import {ERROR_CODES} from "../errors/error-constants.js";
-import {AppError} from "../errors/app-error.js";
+import {
+  createTransaction,
+  getTransactionsByWalletId,
+  getTransactionById,
+} from '../repositories/transaction.repository.js';
 
-export const transactionGetService = () => {
-  return getAllTransactions();
-}
+import {
+  depositWalletData,
+  getBalance,
+  withdrawalWalletData,
+} from '../repositories/wallet.repository.js';
 
-export const transactionGetByIdService = (id) => {
-  const transaction = getTransactionById(id);
+import { ERROR_CODES } from '../errors/error-constants.js';
+import { AppError } from '../errors/app-error.js';
 
-  if(!transaction){
-    throw new AppError(ERROR_CODES.TRANSACTION_NOT_FOUND)
+const WALLET_ID_MOCK = 1;
+
+export const transactionGetService = async () => {
+  return await getTransactionsByWalletId(WALLET_ID_MOCK);
+};
+
+export const transactionGetByIdService = async (id) => {
+  const transaction = await getTransactionById(WALLET_ID_MOCK, id);
+
+  if (!transaction) {
+    throw new AppError(ERROR_CODES.TRANSACTION_NOT_FOUND);
   }
+
   return transaction;
-}
+};
 
-export const transactionCreateService = (data) => {
-
-  if(
+export const transactionCreateService = async (data) => {
+  if (
     (data.type !== 'deposit' && data.type !== 'withdrawal') ||
     (data.asset !== 'BTC' && data.asset !== 'ETH' && data.asset !== 'USDT') ||
-    typeof data.amount !== 'number' ||
-    data.amount <= 0
+    typeof data.amount !== 'number'
   ) {
     throw new AppError(ERROR_CODES.INVALID_TRANSACTION_DATA);
   }
 
-  if(data.type === 'deposit') {
-    depositWalletData(data.asset,data.amount);
+  if (data.amount <= 0) {
+    throw new AppError(ERROR_CODES.INVALID_TRANSACTION_AMOUNT);
   }
 
-  if(data.type === 'withdrawal') {
-    if(getBalance(data.asset) < data.amount) {
-      throw new AppError(ERROR_CODES.INVALID_TRANSACTION_AMOUNT);
-    }else {
-      withdrawalWalletData(data.asset,data.amount);
+  if (data.type === 'deposit') {
+    await depositWalletData(
+      data.asset,
+      data.amount,
+      WALLET_ID_MOCK
+    );
+  }
+
+  if (data.type === 'withdrawal') {
+    const balance = await getBalance(WALLET_ID_MOCK, data.asset);
+
+    if (Number(balance) < data.amount) {
+      throw new AppError(ERROR_CODES.INSUFFICIENT_FUNDS);
     }
+
+    await withdrawalWalletData(
+      data.asset,
+      data.amount,
+      WALLET_ID_MOCK
+    );
   }
 
-  return createTransaction({
-    walletId: 1,
+  return await createTransaction({
+    walletId: WALLET_ID_MOCK,
     type: data.type,
     asset: data.asset,
     amount: data.amount,
-    createdAt: new Date().toISOString(),
   });
-
-}
+};

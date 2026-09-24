@@ -6,15 +6,16 @@ import {
 import {handleError} from "../errors/http-error-handler.js";
 import {AppError} from "../errors/app-error.js";
 import {ERROR_CODES} from "../errors/error-constants.js";
+import {readRequestBody} from "../utils/read-request-body.js";
 
-export const getTransactionById = (request, response,id) => {
+export const getTransactionById = async (request, response,id) => {
   response.statusCode = 200;
   response.setHeader("Content-Type", "application/json")
 
   let transaction;
 
   try {
-   transaction = transactionGetByIdService(id)
+   transaction = await transactionGetByIdService(id)
   }catch (error){
     return handleError(error,response)
   }
@@ -26,11 +27,11 @@ export const getTransactionById = (request, response,id) => {
   )
 };
 
-export const getTransaction = (request, response) => {
+export const getTransaction = async (request, response) => {
   response.statusCode = 200;
   response.setHeader("Content-Type", "application/json")
 
-  const transactions = transactionGetService()
+  const transactions = await transactionGetService()
 
   response.end(
     JSON.stringify({
@@ -39,44 +40,45 @@ export const getTransaction = (request, response) => {
   )
 };
 
-export const createTransaction = (request, response) => {
+export const createTransaction = async (request, response) => {
 // Request body is a stream: data arrives in chunks,
 // so we collect it first and process the complete body on `end`.
 
-  let body = ''
+  let body;
 
-  request.on('data',(chunk) => {
-    body += chunk
-  })
+  try {
+    body = await readRequestBody(request);
+  } catch (error) {
+    return handleError(error, response);
+  }
 
-  request.on('end', () => {
-    let data;
+  let data;
 
-    try{
-      data = JSON.parse(body);
-    }catch{
-      return handleError(
-        new AppError(ERROR_CODES.INVALID_JSON),
-        response
-      );    }
+  try {
+    data = JSON.parse(body);
+  } catch {
+    return handleError(
+      new AppError(ERROR_CODES.INVALID_JSON),
+      response
+    );
+  }
 
-    let newTransaction;
+  let newTransaction;
 
-    try{
-      newTransaction = transactionCreateService(data)
-    }catch (error) {
-        return handleError(error,response)
-    }
+  try {
+    newTransaction = await transactionCreateService(data);
+  } catch (error) {
+    return handleError(error, response);
+  }
 
-    response.statusCode = 200;
-    response.setHeader("Content-Type", "application/json")
+  response.statusCode = 201;
+  response.setHeader('Content-Type', 'application/json');
 
-    response.end(
-      JSON.stringify({
-        data: newTransaction
-      })
-    )
-
-  })
+  response.end(
+    JSON.stringify({
+      data: newTransaction,
+    })
+  );
 };
+
 

@@ -13,12 +13,12 @@ const routes = [
   transactionRoutes,
 ];
 
-export const router = (request, response) => {
+export const router = async (request, response) => {
   let methodNotAllowed = false;
 
   try {
     for (const route of routes) {
-      const result = route(request, response);
+      const result = await route(request, response);
 
       if (result === ROUTER_RESPONSE.HANDLED) {
         return;

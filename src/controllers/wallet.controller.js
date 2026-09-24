@@ -1,11 +1,11 @@
 import {walletGetService} from "../services/wallet.service.js";
 
 
-export const getWallet = (request, response) => {
+export const getWallet = async (request, response) => {
   response.statusCode = 200;
   response.setHeader('Content-Type', 'application/json');
 
-  const wallet = walletGetService()
+  const wallet = await walletGetService()
 
   response.end(
     JSON.stringify({

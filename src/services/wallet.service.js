@@ -1,7 +1,7 @@
-import {getWalletData} from "../repositories/wallet.repository.js";
+import { getWalletData } from '../repositories/wallet.repository.js';
 
-export const walletGetService = () => {
-  const wallet = getWalletData()
-  return wallet;
-}
+const WALLET_ID_MOCK = 1;
 
+export const walletGetService = async () => {
+  return await getWalletData(WALLET_ID_MOCK);
+};
