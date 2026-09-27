@@ -2,7 +2,7 @@
   "name": "crypto-wallet",
   "description": "Pet project 21 Sep 2026",
   "author": "Zhdanovich Oksana Vladimirovna",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": "true",
   "main": "src/server.js",
   "license": "MIT",

@@ -1,4 +1,4 @@
-## Crypto Wallet - V1
+## Crypto Wallet - V2
 ### Vanilla Node.js Backend
 
 - Pure Node.js — built without backend frameworks.
