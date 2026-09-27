@@ -34,8 +34,8 @@ export const getTransactionById = async (walletId, transactionId) => {
   return result.rows[0];
 };
 
-export const createTransaction = async (data) => {
-  const result = await pool.query(`
+export const createTransaction = async (db,data) => {
+  const result = await db.query(`
     INSERT INTO transactions (wallet_id, type, asset, amount)
     VALUES ($1, $2, $3, $4)
     RETURNING

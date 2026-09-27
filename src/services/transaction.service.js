@@ -12,6 +12,7 @@ import {
 
 import { ERROR_CODES } from '../errors/error-constants.js';
 import { AppError } from '../errors/app-error.js';
+import {withTransaction} from "../db/with-transaction.js";
 
 const WALLET_ID_MOCK = 1;
 
@@ -42,32 +43,45 @@ export const transactionCreateService = async (data) => {
     throw new AppError(ERROR_CODES.INVALID_TRANSACTION_AMOUNT);
   }
 
-  if (data.type === 'deposit') {
-    await depositWalletData(
-      data.asset,
-      data.amount,
-      WALLET_ID_MOCK
-    );
-  }
+  return await withTransaction(async (db) => {
+    if (data.type === 'deposit') {
+      const updatedBalance = await depositWalletData(
+        db,
+        data.asset,
+        data.amount,
+        WALLET_ID_MOCK,
+      );
 
-  if (data.type === 'withdrawal') {
-    const balance = await getBalance(WALLET_ID_MOCK, data.asset);
+      if (!updatedBalance) {
+        throw new AppError(ERROR_CODES.BALANCE_NOT_FOUND);
+      }
 
-    if (Number(balance) < data.amount) {
-      throw new AppError(ERROR_CODES.INSUFFICIENT_FUNDS);
+      return updatedBalance;
     }
 
-    await withdrawalWalletData(
-      data.asset,
-      data.amount,
-      WALLET_ID_MOCK
-    );
-  }
+    if (data.type === 'withdrawal') {
+      const balance = await getBalance(
+        db,
+        WALLET_ID_MOCK,
+        data.asset,
+      );
 
-  return await createTransaction({
-    walletId: WALLET_ID_MOCK,
-    type: data.type,
-    asset: data.asset,
-    amount: data.amount,
+      if (Number(balance) < data.amount) {
+        throw new AppError(ERROR_CODES.INSUFFICIENT_FUNDS);
+      }
+
+      await withdrawalWalletData(db,
+        data.asset,
+        data.amount,
+        WALLET_ID_MOCK
+      );
+    }
+
+    return await createTransaction(db,{
+      walletId: WALLET_ID_MOCK,
+      type: data.type,
+      asset: data.asset,
+      amount: data.amount,
+    });
   });
 };

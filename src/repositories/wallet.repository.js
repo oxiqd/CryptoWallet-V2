@@ -17,8 +17,8 @@ export const getWalletData = async (walletId) => {
   return result.rows;
 };
 
-export const getBalance = async (walletId, asset) => {
-  const result = await pool.query(`
+export const getBalance = async (db,walletId, asset) => {
+  const result = await db.query(`
       SELECT amount
       FROM balances
       WHERE wallet_id = $1 AND asset = $2;
@@ -27,8 +27,8 @@ export const getBalance = async (walletId, asset) => {
   return result.rows[0]?.amount;
 };
 
-export const depositWalletData = async (asset, amount, walletId) => {
-  const result = await pool.query(`
+export const depositWalletData = async (db,asset, amount, walletId) => {
+  const result = await db.query(`
       UPDATE balances
       SET amount = amount + $1
       WHERE wallet_id = $2 AND asset = $3
@@ -43,8 +43,8 @@ export const depositWalletData = async (asset, amount, walletId) => {
   return result.rows[0];
 };
 
-export const withdrawalWalletData = async (asset, amount, walletId) => {
-  const result = await pool.query(`
+export const withdrawalWalletData = async (db,asset, amount, walletId) => {
+  const result = await db.query(`
       UPDATE balances
       SET amount = amount - $1
       WHERE wallet_id = $2 AND asset = $3
