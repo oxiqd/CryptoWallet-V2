@@ -2,19 +2,18 @@ import {
   createTransaction,
   getTransactionsByWalletId,
   getTransactionById,
-} from '../repositories/transaction.repository.js';
+} from './transaction.repository.js';
 
 import {
   depositWalletData,
   getBalance,
   withdrawalWalletData,
-} from '../repositories/wallet.repository.js';
+} from '../wallet/wallet.repository.js';
 
-import { ERROR_CODES } from '../errors/error-constants.js';
-import { AppError } from '../errors/app-error.js';
-import {withTransaction} from "../db/with-transaction.js";
-
-const WALLET_ID_MOCK = 1;
+import { withTransaction } from '../../db/with-transaction.js';
+import { ERROR_CODES } from '../../errors/error-codes.js';
+import { AppError } from '../../errors/app-error.js';
+import { WALLET_ID_MOCK } from '../../shared/constants/wallet.constants.js';
 
 export const transactionGetService = async () => {
   return await getTransactionsByWalletId(WALLET_ID_MOCK);
@@ -45,39 +44,20 @@ export const transactionCreateService = async (data) => {
 
   return await withTransaction(async (db) => {
     if (data.type === 'deposit') {
-      const updatedBalance = await depositWalletData(
-        db,
-        data.asset,
-        data.amount,
-        WALLET_ID_MOCK,
-      );
-
-      if (!updatedBalance) {
-        throw new AppError(ERROR_CODES.BALANCE_NOT_FOUND);
-      }
-
-      return updatedBalance;
+      await depositWalletData(db, data.asset, data.amount, WALLET_ID_MOCK);
     }
 
     if (data.type === 'withdrawal') {
-      const balance = await getBalance(
-        db,
-        WALLET_ID_MOCK,
-        data.asset,
-      );
+      const balance = await getBalance(db, WALLET_ID_MOCK, data.asset);
 
       if (Number(balance) < data.amount) {
         throw new AppError(ERROR_CODES.INSUFFICIENT_FUNDS);
       }
 
-      await withdrawalWalletData(db,
-        data.asset,
-        data.amount,
-        WALLET_ID_MOCK
-      );
+      await withdrawalWalletData(db, data.asset, data.amount, WALLET_ID_MOCK);
     }
 
-    return await createTransaction(db,{
+    return await createTransaction(db, {
       walletId: WALLET_ID_MOCK,
       type: data.type,
       asset: data.asset,

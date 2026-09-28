@@ -1,10 +1,14 @@
-import * as http from "node:http";
-import {router} from "./routes/router.js";
+import { buildApp } from './app.js';
+import { env } from './config/env.js';
 
-const server = http.createServer(async (request, response) => {
-  await router(request, response);
-});
+const app = buildApp();
 
-server.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
-});
+try {
+  await app.listen({
+    host: env.server.host,
+    port: env.server.port,
+  });
+} catch (error) {
+  app.log.error(error);
+  process.exit(1);
+}

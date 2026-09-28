@@ -1,6 +1,7 @@
 ### Architecture Direction
+
 The main dependency flow of the application is:
-``Server → Routes → Controllers → Services → Repositories → Data``
+`Server → Routes → Controllers → Services → Repositories → Data`
 
 Dependencies should generally move in this direction, never backwards.
 Not every request has to use every layer. For example, /health does not need a service or repository. The important rule is that when layers are used, their dependencies follow the architecture rather than bypassing or reversing it.
@@ -8,6 +9,7 @@ Not every request has to use every layer. For example, /health does not need a s
 Server — Application Entry Point
 server.js is responsible for creating and running the HTTP server and passing incoming requests to the routing layer.
 Responsibilities:
+
 - Create the HTTP server
 - Listen on the configured port
 - Receive incoming requests
@@ -16,6 +18,7 @@ Responsibilities:
   It should contain no domain or business logic: no wallet balances, transactions, deposits, withdrawals, or direct data access.
 
 ## Roadmap (v2,v3,v4)
+
 - HTTP API — complete routing, 404/405, query parameters, and resource lookup by id.
 - HTTP Errors — introduce a consistent error-handling structure.
 - SQL Fundamentals — learn SELECT, INSERT, UPDATE, DELETE, JOIN, and constraints.

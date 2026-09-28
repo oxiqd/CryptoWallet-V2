@@ -1,4 +1,5 @@
 ## Crypto Wallet - V2
+
 ### Vanilla Node.js Backend
 
 - Pure Node.js — built without backend frameworks.
@@ -20,3 +21,21 @@
 - No Database / ORM / Query Builder — no PostgreSQL, ORM, or Kysely at this stage.
 - No Authentication — no users, login flow, password handling, or JWT yet.
 - No Framework Abstractions — routing, middleware, schema validation, dependency injection, and other framework-level features are intentionally implemented manually or not introduced yet.
+
+## Documentation
+
+- Node.js — https://nodejs.org/docs/latest/api/
+- PostgreSQL — https://www.postgresql.org/docs/
+- Fastify — https://fastify.dev/docs/latest/
+
+## v2 Updates — Fastify Migration
+
+V2 replaces the manual `node:http` infrastructure with Fastify.
+
+- Manual `node:http` server setup → Fastify application instance
+- Manual route registration → `app.register(...)`
+- Manual method/path matching → `app.get(...)`, `app.post(...)`, `request.params`
+- Manual request body reading from streams → `request.body`
+- Manual `response.statusCode`, headers and `response.end(...)` → `reply.code(...).send(...)`
+- Manual centralized error handling → Fastify `setErrorHandler(...)`
+- Manual router layer → Fastify route modules
