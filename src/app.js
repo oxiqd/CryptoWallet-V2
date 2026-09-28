@@ -4,14 +4,14 @@ import { healthRoutes } from './modules/health/health.routes.js';
 import { walletRoutes } from './modules/wallet/wallet.routes.js';
 import { transactionRoutes } from './modules/transactions/transaction.routes.js';
 
-import { errorHandlerPlugin } from './plugins/error-handler.plugin.js';
+import { setupErrorHandler } from './plugins/error-handler.plugin.js';
 
 export const buildApp = () => {
   const app = Fastify({
     logger: true,
   });
 
-  app.register(errorHandlerPlugin);
+  setupErrorHandler(app);
 
   app.register(healthRoutes, {
     prefix: '/health',

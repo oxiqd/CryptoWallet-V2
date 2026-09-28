@@ -30,18 +30,6 @@ export const transactionGetByIdService = async (id) => {
 };
 
 export const transactionCreateService = async (data) => {
-  if (
-    (data.type !== 'deposit' && data.type !== 'withdrawal') ||
-    (data.asset !== 'BTC' && data.asset !== 'ETH' && data.asset !== 'USDT') ||
-    typeof data.amount !== 'number'
-  ) {
-    throw new AppError(ERROR_CODES.INVALID_TRANSACTION_DATA);
-  }
-
-  if (data.amount <= 0) {
-    throw new AppError(ERROR_CODES.INVALID_TRANSACTION_AMOUNT);
-  }
-
   return await withTransaction(async (db) => {
     if (data.type === 'deposit') {
       await depositWalletData(db, data.asset, data.amount, WALLET_ID_MOCK);

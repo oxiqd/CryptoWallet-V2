@@ -3,11 +3,18 @@ import {
   getTransactionById,
   getTransactions,
 } from './transaction.controller.js';
+import { createTransactionSchema, getTransactionByIdSchema } from './transaction.schema.js';
 
 export const transactionRoutes = async (app) => {
   app.get('/', getTransactions);
 
-  app.get('/:id', getTransactionById);
+  app.get('/:id', {
+    schema: getTransactionByIdSchema,
+    handler: getTransactionById,
+  });
 
-  app.post('/', createTransaction);
+  app.post('/', {
+    schema: createTransactionSchema,
+    handler: createTransaction,
+  });
 };
