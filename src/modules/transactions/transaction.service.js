@@ -1,26 +1,40 @@
 import {
   createTransaction,
-  getTransactionsByWalletId,
   getTransactionById,
+  getTransactionsByWalletId,
 } from './transaction.repository.js';
 
 import {
   depositWalletData,
   getBalance,
+  getWalletByUserId,
   withdrawalWalletData,
 } from '../wallet/wallet.repository.js';
 
 import { withTransaction } from '../../db/with-transaction.js';
 import { ERROR_CODES } from '../../errors/error-codes.js';
 import { AppError } from '../../errors/app-error.js';
-import { WALLET_ID_MOCK } from '../../shared/constants/wallet.constants.js';
 
-export const transactionGetService = async () => {
-  return await getTransactionsByWalletId(WALLET_ID_MOCK);
+const getRequiredWalletByUserId = async (userId, db) => {
+  const wallet = await getWalletByUserId(userId, db);
+
+  if (!wallet) {
+    throw new AppError(ERROR_CODES.WALLET_NOT_FOUND);
+  }
+
+  return wallet;
 };
 
-export const transactionGetByIdService = async (id) => {
-  const transaction = await getTransactionById(WALLET_ID_MOCK, id);
+export const transactionGetService = async (userId) => {
+  const wallet = await getRequiredWalletByUserId(userId);
+
+  return await getTransactionsByWalletId(wallet.id);
+};
+
+export const transactionGetByIdService = async (userId, transactionId) => {
+  const wallet = await getRequiredWalletByUserId(userId);
+
+  const transaction = await getTransactionById(wallet.id, transactionId);
 
   if (!transaction) {
     throw new AppError(ERROR_CODES.TRANSACTION_NOT_FOUND);
@@ -29,24 +43,26 @@ export const transactionGetByIdService = async (id) => {
   return transaction;
 };
 
-export const transactionCreateService = async (data) => {
+export const transactionCreateService = async (userId, data) => {
   return await withTransaction(async (db) => {
+    const wallet = await getRequiredWalletByUserId(userId, db);
+
     if (data.type === 'deposit') {
-      await depositWalletData(db, data.asset, data.amount, WALLET_ID_MOCK);
+      await depositWalletData(db, data.asset, data.amount, wallet.id);
     }
 
     if (data.type === 'withdrawal') {
-      const balance = await getBalance(db, WALLET_ID_MOCK, data.asset);
+      const balance = await getBalance(db, wallet.id, data.asset);
 
       if (Number(balance) < data.amount) {
         throw new AppError(ERROR_CODES.INSUFFICIENT_FUNDS);
       }
 
-      await withdrawalWalletData(db, data.asset, data.amount, WALLET_ID_MOCK);
+      await withdrawalWalletData(db, data.asset, data.amount, wallet.id);
     }
 
     return await createTransaction(db, {
-      walletId: WALLET_ID_MOCK,
+      walletId: wallet.id,
       type: data.type,
       asset: data.asset,
       amount: data.amount,

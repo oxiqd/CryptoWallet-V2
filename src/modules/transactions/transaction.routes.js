@@ -6,6 +6,8 @@ import {
 import { createTransactionSchema, getTransactionByIdSchema } from './transaction.schema.js';
 
 export const transactionRoutes = async (app) => {
+  app.addHook('preHandler', app.authenticate);
+
   app.get('/', getTransactions);
 
   app.get('/:id', {

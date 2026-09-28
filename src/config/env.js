@@ -13,4 +13,9 @@ export const env = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
+
+  auth: {
+    jwtSecret: process.env.JWT_SECRET,
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '15m',
+  },
 };

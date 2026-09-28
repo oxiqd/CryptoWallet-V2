@@ -4,8 +4,14 @@ import {
   transactionGetService,
 } from './transaction.service.js';
 
-export const getTransactions = async () => {
-  const transactions = await transactionGetService();
+const getCurrentUserId = (request) => {
+  return Number(request.user.sub);
+};
+
+export const getTransactions = async (request) => {
+  const userId = getCurrentUserId(request);
+
+  const transactions = await transactionGetService(userId);
 
   return {
     data: transactions,
@@ -13,7 +19,10 @@ export const getTransactions = async () => {
 };
 
 export const getTransactionById = async (request) => {
-  const transaction = await transactionGetByIdService(Number(request.params.id));
+  const userId = getCurrentUserId(request);
+  const transactionId = Number(request.params.id);
+
+  const transaction = await transactionGetByIdService(userId, transactionId);
 
   return {
     data: transaction,
@@ -21,7 +30,9 @@ export const getTransactionById = async (request) => {
 };
 
 export const createTransaction = async (request, reply) => {
-  const transaction = await transactionCreateService(request.body);
+  const userId = getCurrentUserId(request);
+
+  const transaction = await transactionCreateService(userId, request.body);
 
   return reply.code(201).send({
     data: transaction,
