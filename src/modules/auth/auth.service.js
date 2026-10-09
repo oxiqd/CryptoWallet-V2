@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { withTransaction } from '../../db/with-transaction.js';
 import { ERROR_CODES } from '../../errors/error-codes.js';
 import { AppError } from '../../errors/app-error.js';
-import { createUser, getUserByEmail } from '../users/user.repository.js';
+import { createUser, getUserByEmail, getUserById } from '../users/user.repository.js';
 import { createInitialBalances, createWallet } from '../wallet/wallet.repository.js';
 
 const PASSWORD_SALT_ROUNDS = 10;
@@ -52,6 +52,18 @@ export const loginUserService = async (data) => {
 
   if (!isPasswordValid) {
     throw new AppError(ERROR_CODES.INVALID_CREDENTIALS);
+  }
+
+  return {
+    user: toPublicUser(user),
+  };
+};
+
+export const refreshUserSessionService = async (userId) => {
+  const user = await getUserById(userId);
+
+  if (!user) {
+    throw new AppError(ERROR_CODES.UNAUTHORIZED);
   }
 
   return {

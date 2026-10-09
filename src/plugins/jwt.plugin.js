@@ -9,4 +9,12 @@ export const jwtPlugin = (app) => {
       expiresIn: env.auth.jwtExpiresIn,
     },
   });
+
+  app.register(jwt, {
+    namespace: 'refresh',
+    secret: env.auth.jwtRefreshSecret,
+    sign: {
+      expiresIn: env.auth.jwtRefreshExpiresIn,
+    },
+  });
 };

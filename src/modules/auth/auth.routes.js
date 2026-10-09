@@ -1,4 +1,4 @@
-import { loginUser, registerUser } from './auth.controller.js';
+import { loginUser, logoutUser, refreshUserSession, registerUser } from './auth.controller.js';
 
 import { loginSchema, registerSchema } from './auth.schema.js';
 
@@ -12,4 +12,8 @@ export const authRoutes = async (app) => {
     schema: loginSchema,
     handler: loginUser,
   });
+
+  app.post('/refresh', refreshUserSession);
+
+  app.post('/logout', logoutUser);
 };
